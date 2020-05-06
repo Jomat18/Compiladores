@@ -6,13 +6,13 @@ int main()
 {
   ifstream archivo;
   string palabra;
-  archivo.open("texto.txt",ios::in);
+  archivo.open("codigo.cpp",ios::in);
 
   while(!archivo.eof()) {
     palabra = (char)archivo.get();
 
     for (int i=0;i< palabra.size();i++) {
-      if (!isblank(palabra[i])) {
+      if (!isblank(palabra[i]) && palabra[i]!='\n') {
         cout<<palabra[i] <<"\n";        
       }
     }
