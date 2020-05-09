@@ -48,7 +48,6 @@ int main() {
     }
 
     if (estado!=3) {
-		cout<<estado;
     	cout<<"Error\n";
     }
     else {
