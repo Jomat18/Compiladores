@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include "Estado.h"
+#include <iostream>
 
 #define grafo_entrada "entrada.dot"  //Para dibujar el grafo de in.txt
 #define grafo_salida "salida.dot"    //Para dibujar el grafo de out.txt
@@ -204,7 +205,7 @@ int main(int argc, char ** argv){
     
     // Variables para out.txt
     vector<Estado> aut_final; //automata
-    queue<Estado> marcados;
+    queue<Estado> no_marcados;
 
     vector<string> temp; 
     Estado inicio;
@@ -212,43 +213,47 @@ int main(int argc, char ** argv){
     R.push_back(estados[est_finales]);  //Estado inicial
 
     inicio.etiqueta = estados[est_finales++];  //Se agrega el primer estado inicio
-    inicio.estados = calcular_clausura(R, transiciones);
+    inicio.estados = calcular_clausura(R, transiciones); //1
 
-    aut_final.push_back(inicio);
-    marcados.push(inicio);
+    aut_final.push_back(inicio); //1
+    no_marcados.push(inicio);  
     Estado evaluar;
 
     int t = 0;  //Numero de transiciones
     string e=""; //saber a que estado apuntar para las transiciones
     
-    while(!marcados.empty()) {
+    while(!no_marcados.empty()) {
 
-    	evaluar = marcados.front(); 
-    	marcados.pop(); 
+    	evaluar = no_marcados.front(); 
+    	no_marcados.pop();  // marcar
 
     	for (int i=0; i<num_entradas; i++) {  //Alfabeto
 	    	Estado nuevo_est;
 
-	    	nuevo_est.estados = transita(evaluar.estados, entradas[i], transiciones);	
-			nuevo_est.estados = calcular_clausura(nuevo_est.estados, transiciones);    	
+	    	nuevo_est.estados = transita(evaluar.estados, entradas[i], transiciones);
 
-			if(!ya_conocido(aut_final, nuevo_est.estados, e)) {     
-				nuevo_est.etiqueta = estados[est_finales++]; 
-				aut_final.push_back(nuevo_est);			
-				marcados.push(nuevo_est);
-				trans_finales[t][0] = evaluar.etiqueta;
-				trans_finales[t][1] = entradas[i];
-				trans_finales[t][2] = nuevo_est.etiqueta;	
-				t++;
-			}
+	    	if (nuevo_est.estados.size()) {
+	    		nuevo_est.estados = calcular_clausura(nuevo_est.estados, transiciones);    	
 
-			else {
-				trans_finales[t][0] = evaluar.etiqueta;
-				trans_finales[t][1] = entradas[i];
-				trans_finales[t][2] = e;
-				t++;
-			}		
-			
+				if(!ya_conocido(aut_final, nuevo_est.estados, e)) {     
+					nuevo_est.etiqueta = estados[est_finales++]; 
+					aut_final.push_back(nuevo_est);			
+					no_marcados.push(nuevo_est); //Desmarcar 
+					trans_finales[t][0] = evaluar.etiqueta;
+					trans_finales[t][1] = entradas[i];
+					trans_finales[t][2] = nuevo_est.etiqueta;	
+					//cout<<trans_finales[t][0]<<" "<<trans_finales[t][1]<<" "<<trans_finales[t][2]<<endl;
+					t++;
+				}
+
+				else {   // Agregar solo la transicion
+					trans_finales[t][0] = evaluar.etiqueta;
+					trans_finales[t][1] = entradas[i];
+					trans_finales[t][2] = e;
+					//cout<<trans_finales[t][0]<<" "<<trans_finales[t][1]<<" "<<trans_finales[t][2]<<endl;
+					t++;
+				}
+	    	}		
     	}        
     }
 	
