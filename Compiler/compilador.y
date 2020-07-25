@@ -1,21 +1,26 @@
 %{
 
 #include<stdio.h>
+#include<stdlib.h>
 #include<ctype.h>
 #include<string.h>
 
 
-typedef union { int entero;
-		float real; } tipovalor;
+typedef union 
+{   
+    int entero;
+		float real; 
+} tipovalor;
 
 
-typedef struct {
-                   char  nombre[30];
-                   int       a1;  /* a1: INT/FLOAT/NUM/   */
-                   int       a2;  /* a2: FUN/VAR */
-                   tipovalor a3;  /* guarda valor, sera entero o real ocupando una sola posicion de memoria */
+typedef struct 
+{
+    char  nombre[30];
+    int       a1;  /* a1: INT/FLOAT/NUM/   */
+    int       a2;  /* a2: FUN/VAR */
+    tipovalor a3;  /* guarda valor, sera entero o real ocupando una sola posicion de memoria */
 
-               }  tipoTablaSimbolo;
+}  tipoTablaSimbolo;
 
 tipoTablaSimbolo TS[100], *pTS;
 int nTS = 0; //numero de simbolos que hay en la tabla
@@ -23,11 +28,18 @@ int nTS = 0; //numero de simbolos que hay en la tabla
 char lexema[80];
 int tipoVar;
 
+int yylex();
+void yyerror(char *m);
+void IS(int tipo,int clase);
+void muestraSimbolo();
+int localizaSimbolo(char *n);
+int insertaSimbolo(char *n, int t);
+
 %}
 
-%token ID IF ELSE NUM REAL WHILE /* ID=257 */
-%token INT FLOAT  /*  INT=263 FLOAT=264 */
-%token VAR FUNCION /* VAR=265 FUNCTION=266 */
+%token ID IF ELSE NUM REAL WHILE /* ID=258 */
+%token INT FLOAT  /*  INT=264 FLOAT=265 */
+%token VAR FUNCION /* VAR=266 FUNCTION=267 */
 %token NOT
 
 %right '='  /* asignacion */
@@ -40,15 +52,11 @@ int tipoVar;
 	programaC   : listaDeclC ;
 	listaDeclC  : listaDeclC declC | ;
 	declC       : Tipo listaVar ';';
- /* declC       : Tipo ID '('                    listaPar ')' bloque; */
 	declC       : Tipo ID '(' { IS($1,FUNCION);} listaPar ')' bloque;
 
 	Tipo        : INT  | FLOAT ;
- /* listaVar    : ID ','                      listaVar | ID                     ; */
 	listaVar    : ID ',' { IS(tipoVar,VAR); } listaVar | ID { IS(tipoVar,VAR); };
-	
- /* listaPar    : Tipo ID                 ',' listaPar	| Tipo ID                ; */
-    listaPar    : Tipo ID { IS($1,VAR); } ',' listaPar	| Tipo ID { IS($1,VAR); };
+  listaPar    : Tipo ID { IS($1,VAR); } ',' listaPar	| Tipo ID { IS($1,VAR); };
 
 	bloque      : '{' listaVarLoc listaProp '}';
 
@@ -57,27 +65,22 @@ int tipoVar;
 	listaProp   : listaProp prop | ;
 
 	prop        : ';' ;
-    prop        : IF '(' expr ')'  prop  ;
+  prop        : IF '(' expr ')'  prop  ;
 	prop        : WHILE '('  expr  ')'prop ;
 
 	prop        : bloque ;
-/*	prop        : ID '=' expr ;    */	
 	prop        : ID '=' { $$ = localizaSimbolo(lexema); } expr ;   /* Codigo 3 */
 
 	expr        : expr IGUAL expr ;
 	expr        : expr NOIGUAL expr ;
-    expr        : expr '<' expr ;  /* n = $1 < $3  */
-    expr 	    : expr '+' expr ;  /*  sumar,a+b,a,b   */
-    expr        : expr '-' expr ;  /*  restar,a-b,a,b   */;
-    expr        : expr '*' expr ;  /*  multiplicar,a*b,a,b   */;
-    expr        : expr '/' expr ;  /*  dividir,a/b,a,b   */;
-/*	expr        : ID ;                                  */	
+  expr        : expr '<' expr ;  /* n = $1 < $3  */
+  expr 	      : expr '+' expr ;  /*  sumar,a+b,a,b   */
+  expr        : expr '-' expr ;  /*  restar,a-b,a,b   */;
+  expr        : expr '*' expr ;  /*  multiplicar,a*b,a,b   */;
+  expr        : expr '/' expr ;  /*  dividir,a/b,a,b   */;
 	expr        : ID {$$ = localizaSimbolo(lexema);} ;
 
-/*	expr        : NUM ;                                  */	
-    expr        : NUM  {IS($1,NUM); $$=localizaSimbolo(lexema);   TS[$$].a3.entero = atoi(lexema);}  ;  /* Codigo 1 */
-
-/*	expr        : REAL ;                                  */	
+  expr        : NUM  {IS($1,NUM); $$=localizaSimbolo(lexema);   TS[$$].a3.entero = atoi(lexema);}  ;  
 	expr        : REAL {float v; IS($1,REAL);$$ = localizaSimbolo(lexema); sscanf(lexema,"%f",&v);TS[$$].a3.real = v;};   /* Codigo 2 */
 
 
@@ -182,18 +185,20 @@ int yylex()
     	return yylval=NUM;
     	}
     	
-    yyerror("¡¡¡ caracter ilegal !!!");
+    yyerror("caracter no valido");
 }
 
-yyerror(char *m)  { 
-	fprintf(stderr,"error de sintaxis %s\n",m); 
-	getchar(); 
+void yyerror(char *m)  { 
+	printf("%s\n",m); 
+	//getchar(); 
 	exit(0);
-	}
+}
 
-main()  {
+int main()  {
 	yyparse();
 	muestraSimbolo();
-	}
+
+  return 0;
+}
 
 
