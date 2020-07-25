@@ -5,7 +5,6 @@
 #include<ctype.h>
 #include<string.h>
 
-
 typedef union 
 {   
     int entero;
@@ -30,10 +29,10 @@ int tipoVar;
 
 int yylex();
 void yyerror(char *m);
-void IS(int tipo,int clase);
-void muestraSimbolo();
+
 int localizaSimbolo(char *n);
-int insertaSimbolo(char *n, int t);
+int insertaSimbolo(char *n, int tipo, int clase);
+void muestraSimbolo();
 
 %}
 
@@ -52,11 +51,11 @@ int insertaSimbolo(char *n, int t);
 	programaC   : listaDeclC ;
 	listaDeclC  : listaDeclC declC | ;
 	declC       : Tipo listaVar ';';
-	declC       : Tipo ID '(' { IS($1,FUNCION);} listaPar ')' bloque;
+	declC       : Tipo ID '(' { insertaSimbolo(lexema, $1,FUNCION);} listaPar ')' bloque;
 
 	Tipo        : INT  | FLOAT ;
-	listaVar    : ID ',' { IS(tipoVar,VAR); } listaVar | ID { IS(tipoVar,VAR); };
-  listaPar    : Tipo ID { IS($1,VAR); } ',' listaPar	| Tipo ID { IS($1,VAR); };
+	listaVar    : ID ',' { insertaSimbolo(lexema, tipoVar,VAR); } listaVar | ID { insertaSimbolo(lexema, tipoVar,VAR); };
+  listaPar    : Tipo ID { insertaSimbolo(lexema, $1,VAR); } ',' listaPar	| Tipo ID { insertaSimbolo(lexema, $1,VAR); };
 
 	bloque      : '{' listaVarLoc listaProp '}';
 
@@ -80,8 +79,8 @@ int insertaSimbolo(char *n, int t);
   expr        : expr '/' expr ;  /*  dividir,a/b,a,b   */;
 	expr        : ID {$$ = localizaSimbolo(lexema);} ;
 
-  expr        : NUM  {IS($1,NUM); $$=localizaSimbolo(lexema);   TS[$$].a3.entero = atoi(lexema);}  ;  
-	expr        : REAL {float v; IS($1,REAL);$$ = localizaSimbolo(lexema); sscanf(lexema,"%f",&v);TS[$$].a3.real = v;};   /* Codigo 2 */
+  expr        : NUM  {insertaSimbolo(lexema, $1,NUM); $$=localizaSimbolo(lexema);   TS[$$].a3.entero = atoi(lexema);}  ;  
+	expr        : REAL {float v; insertaSimbolo(lexema, $1,REAL);$$ = localizaSimbolo(lexema); sscanf(lexema,"%f",&v);TS[$$].a3.real = v;};   /* Codigo 2 */
 
 
 %%
@@ -96,22 +95,15 @@ int localizaSimbolo(char *n)
 	return -1;
 }
 
-int insertaSimbolo(char *n, int t)
+int insertaSimbolo(char *n, int tipo, int clase)
 {
 	if(localizaSimbolo(n)>=0) 
               return -1;
 	strcpy(TS[nTS].nombre,n);
-	TS[nTS].a1 = t;
-	TS[nTS].a2 = TS[nTS].a3.real = 0;
-	return nTS++;	
-}
-
-void IS(int tipo,int clase)
-{
-	int i;
-	i = insertaSimbolo(lexema, tipo);
-    TS[i].a2=clase;
-
+	TS[nTS].a1 = tipo;
+	TS[nTS].a2 = clase;
+  TS[nTS].a3.real = 0;
+  nTS++;
 }
 
 void muestraSimbolo()
@@ -144,12 +136,13 @@ int yylex()
       if (strcmp(lexema,"int")==0) return tipoVar=yylval=INT;
       if (strcmp(lexema,"float")==0) return tipoVar=yylval=FLOAT;
       if (strcmp(lexema,"while")==0) return WHILE;
-      if (strcmp(lexema,"chao")==0) return EOF;
       
       /* van otras palabras reservadas */
       
       return yylval=ID;
     }
+
+    if(c==EOF) return EOF;
   
     if ( c=='(' || c==')' || c==';' || c==',' || c=='{' || c=='}' ||
          c=='*' || c=='/' || c=='+' || c=='-' )  return yylval=c;

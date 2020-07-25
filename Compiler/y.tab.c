@@ -70,7 +70,6 @@
 #include<ctype.h>
 #include<string.h>
 
-
 typedef union 
 {   
     int entero;
@@ -95,13 +94,13 @@ int tipoVar;
 
 int yylex();
 void yyerror(char *m);
-void IS(int tipo,int clase);
-void muestraSimbolo();
+
 int localizaSimbolo(char *n);
-int insertaSimbolo(char *n, int t);
+int insertaSimbolo(char *n, int tipo, int clase);
+void muestraSimbolo();
 
 
-#line 105 "y.tab.c" /* yacc.c:339  */
+#line 104 "y.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -184,7 +183,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 188 "y.tab.c" /* yacc.c:358  */
+#line 187 "y.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -483,10 +482,10 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    52,    52,    53,    53,    54,    55,    55,    57,    57,
-      58,    58,    58,    59,    59,    59,    61,    63,    63,    65,
-      65,    67,    68,    69,    71,    72,    72,    74,    75,    76,
-      77,    78,    79,    80,    81,    83,    84
+       0,    51,    51,    52,    52,    53,    54,    54,    56,    56,
+      57,    57,    57,    58,    58,    58,    60,    62,    62,    64,
+      64,    66,    67,    68,    70,    71,    71,    73,    74,    75,
+      76,    77,    78,    79,    80,    82,    83
 };
 #endif
 
@@ -1298,61 +1297,61 @@ yyreduce:
   switch (yyn)
     {
         case 6:
-#line 55 "compilador.y" /* yacc.c:1646  */
-    { IS((yyvsp[-2]),FUNCION);}
-#line 1304 "y.tab.c" /* yacc.c:1646  */
+#line 54 "compilador.y" /* yacc.c:1646  */
+    { insertaSimbolo(lexema, (yyvsp[-2]),FUNCION);}
+#line 1303 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 58 "compilador.y" /* yacc.c:1646  */
-    { IS(tipoVar,VAR); }
-#line 1310 "y.tab.c" /* yacc.c:1646  */
+#line 57 "compilador.y" /* yacc.c:1646  */
+    { insertaSimbolo(lexema, tipoVar,VAR); }
+#line 1309 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 58 "compilador.y" /* yacc.c:1646  */
-    { IS(tipoVar,VAR); }
-#line 1316 "y.tab.c" /* yacc.c:1646  */
+#line 57 "compilador.y" /* yacc.c:1646  */
+    { insertaSimbolo(lexema, tipoVar,VAR); }
+#line 1315 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 59 "compilador.y" /* yacc.c:1646  */
-    { IS((yyvsp[-1]),VAR); }
-#line 1322 "y.tab.c" /* yacc.c:1646  */
+#line 58 "compilador.y" /* yacc.c:1646  */
+    { insertaSimbolo(lexema, (yyvsp[-1]),VAR); }
+#line 1321 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 59 "compilador.y" /* yacc.c:1646  */
-    { IS((yyvsp[-1]),VAR); }
-#line 1328 "y.tab.c" /* yacc.c:1646  */
+#line 58 "compilador.y" /* yacc.c:1646  */
+    { insertaSimbolo(lexema, (yyvsp[-1]),VAR); }
+#line 1327 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 72 "compilador.y" /* yacc.c:1646  */
+#line 71 "compilador.y" /* yacc.c:1646  */
     { (yyval) = localizaSimbolo(lexema); }
-#line 1334 "y.tab.c" /* yacc.c:1646  */
+#line 1333 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 81 "compilador.y" /* yacc.c:1646  */
+#line 80 "compilador.y" /* yacc.c:1646  */
     {(yyval) = localizaSimbolo(lexema);}
-#line 1340 "y.tab.c" /* yacc.c:1646  */
+#line 1339 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 35:
-#line 83 "compilador.y" /* yacc.c:1646  */
-    {IS((yyvsp[0]),NUM); (yyval)=localizaSimbolo(lexema);   TS[(yyval)].a3.entero = atoi(lexema);}
-#line 1346 "y.tab.c" /* yacc.c:1646  */
+#line 82 "compilador.y" /* yacc.c:1646  */
+    {insertaSimbolo(lexema, (yyvsp[0]),NUM); (yyval)=localizaSimbolo(lexema);   TS[(yyval)].a3.entero = atoi(lexema);}
+#line 1345 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 36:
-#line 84 "compilador.y" /* yacc.c:1646  */
-    {float v; IS((yyvsp[0]),REAL);(yyval) = localizaSimbolo(lexema); sscanf(lexema,"%f",&v);TS[(yyval)].a3.real = v;}
-#line 1352 "y.tab.c" /* yacc.c:1646  */
+#line 83 "compilador.y" /* yacc.c:1646  */
+    {float v; insertaSimbolo(lexema, (yyvsp[0]),REAL);(yyval) = localizaSimbolo(lexema); sscanf(lexema,"%f",&v);TS[(yyval)].a3.real = v;}
+#line 1351 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1356 "y.tab.c" /* yacc.c:1646  */
+#line 1355 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1580,7 +1579,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 87 "compilador.y" /* yacc.c:1906  */
+#line 86 "compilador.y" /* yacc.c:1906  */
 
 
 
@@ -1593,22 +1592,15 @@ int localizaSimbolo(char *n)
 	return -1;
 }
 
-int insertaSimbolo(char *n, int t)
+int insertaSimbolo(char *n, int tipo, int clase)
 {
 	if(localizaSimbolo(n)>=0) 
               return -1;
 	strcpy(TS[nTS].nombre,n);
-	TS[nTS].a1 = t;
-	TS[nTS].a2 = TS[nTS].a3.real = 0;
-	return nTS++;	
-}
-
-void IS(int tipo,int clase)
-{
-	int i;
-	i = insertaSimbolo(lexema, tipo);
-    TS[i].a2=clase;
-
+	TS[nTS].a1 = tipo;
+	TS[nTS].a2 = clase;
+  TS[nTS].a3.real = 0;
+  nTS++;
 }
 
 void muestraSimbolo()
@@ -1641,12 +1633,13 @@ int yylex()
       if (strcmp(lexema,"int")==0) return tipoVar=yylval=INT;
       if (strcmp(lexema,"float")==0) return tipoVar=yylval=FLOAT;
       if (strcmp(lexema,"while")==0) return WHILE;
-      if (strcmp(lexema,"chao")==0) return EOF;
       
       /* van otras palabras reservadas */
       
       return yylval=ID;
     }
+
+    if(c==EOF) return EOF;
   
     if ( c=='(' || c==')' || c==';' || c==',' || c=='{' || c=='}' ||
          c=='*' || c=='/' || c=='+' || c=='-' )  return yylval=c;

@@ -1,22 +1,26 @@
-/* Diseño de las reglas de un MINIC */
-
 %{
 
 #include<stdio.h>
 #include<ctype.h>
 #include<string.h>
 
-int yylex();
-typedef union { int entero;
-		float real;
-		} tipovalor;
+typedef union 
+{
+ 	int entero;
+	float real;
+} tipovalor;
+
+//printf("%d\n", sizeof(a3));
+
 void IS(int , int);
 char lexema[80];
+
 typedef struct {char nombre[30];
 		int a1,a2;  	// a1: INT/FLOAT	a2: FUN/VAR
 		tipovalor a3; 	// guarda valor
 	} tipoTablaSimbolo;
 
+int yylex();
 tipoTablaSimbolo TS[100], *pTS;
 int nTS = 0;
 int insertaSimbolo(char *, int);
@@ -70,11 +74,9 @@ void interprete();
 	programaC : listaDeclC ;
 	listaDeclC : listaDeclC declC | ;
 	declC : Tipo listaVar ';';
-/*  declC : Tipo ID '('                     listaPar ')' bloque; */
 	declC : Tipo ID '(' { IS($1,FUNCION);}	listaPar ')' bloque;
 	Tipo : INT  | FLOAT ;
 	
-/*  listaVar : ID ','                       listaVar | ID ; */
 	listaVar : ID ',' { IS(tipoVar,VAR); }	listaVar | ID { IS(tipoVar,VAR); };
 	listaPar : Tipo ID { IS($1,VAR); }',' listaPar   | Tipo ID { IS($1,VAR); };
 	bloque : '{' listaVarLoc listaProp '}';
