@@ -45,37 +45,57 @@ extern int yydebug;
 # define YYTOKENTYPE
   enum yytokentype
   {
-    ID = 258,
-    IF = 259,
-    ELSE = 260,
-    NUM = 261,
-    REAL = 262,
-    WHILE = 263,
-    INT = 264,
-    FLOAT = 265,
-    VAR = 266,
-    FUNCION = 267,
-    NOT = 268,
-    IGUAL = 269,
-    NOIGUAL = 270,
-    MENORIGUAL = 271
+    INT = 258,
+    FLOAT = 259,
+    FORMATO = 260,
+    ID = 261,
+    IF = 262,
+    ELSE = 263,
+    NUM = 264,
+    REAL = 265,
+    WHILE = 266,
+    DO = 267,
+    FOR = 268,
+    FUNCION = 269,
+    LEENUM = 270,
+    IMPRINUM = 271,
+    CENTERO = 272,
+    CFLOAT = 273,
+    VAR = 274,
+    NOT = 275,
+    OR = 276,
+    AND = 277,
+    IGUAL = 278,
+    NOIGUAL = 279,
+    MENORIGUAL = 280,
+    MAYORIGUAL = 281
   };
 #endif
 /* Tokens.  */
-#define ID 258
-#define IF 259
-#define ELSE 260
-#define NUM 261
-#define REAL 262
-#define WHILE 263
-#define INT 264
-#define FLOAT 265
-#define VAR 266
-#define FUNCION 267
-#define NOT 268
-#define IGUAL 269
-#define NOIGUAL 270
-#define MENORIGUAL 271
+#define INT 258
+#define FLOAT 259
+#define FORMATO 260
+#define ID 261
+#define IF 262
+#define ELSE 263
+#define NUM 264
+#define REAL 265
+#define WHILE 266
+#define DO 267
+#define FOR 268
+#define FUNCION 269
+#define LEENUM 270
+#define IMPRINUM 271
+#define CENTERO 272
+#define CFLOAT 273
+#define VAR 274
+#define NOT 275
+#define OR 276
+#define AND 277
+#define IGUAL 278
+#define NOIGUAL 279
+#define MENORIGUAL 280
+#define MAYORIGUAL 281
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED

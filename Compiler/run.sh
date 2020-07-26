@@ -1,5 +1,6 @@
 #!/bin/sh
 
-yacc -d compilador.y
+yacc -d compiler.y
+
 gcc y.tab.c -o compiler
 #./compiler <archivo.cpp

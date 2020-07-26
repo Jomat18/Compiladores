@@ -1,70 +1,22 @@
 %{
 
-#include<stdio.h>
-#include<ctype.h>
-#include<string.h>
+#include <stdio.h>
+#include <ctype.h>
+#include <string.h>
+#include <stdlib.h>
 
-typedef union 
-{
- 	int entero;
-	float real;
-} tipovalor;
-
-//printf("%d\n", sizeof(a3));
-
-void IS(int , int);
-char lexema[80];
-
-typedef struct {char nombre[30];
-		int a1,a2;  	// a1: INT/FLOAT	a2: FUN/VAR
-		tipovalor a3; 	// guarda valor
-	} tipoTablaSimbolo;
+#include "datos.h"
 
 int yylex();
-tipoTablaSimbolo TS[100], *pTS;
-int nTS = 0;
-int insertaSimbolo(char *, int);
-int localizaSimbolo(char *);
-void muestraSimbolo();
-int tipoVar;
-
-// Definición de la tabla de código
-
-typedef struct { int op,a1,a2,a3;}
-	tipoCodigo;
-
-tipoCodigo TABCOD[100];
-int cx = -1; 		// indice de código actual
-int indicevartemp = 0;  	//número de variables temporales
-void genCodigo(int ,int ,int ,int );
-int genvartemp();
-void muestraCodigo();
-
-void interprete();
-
-// Definición de las operaciones de lenguaje intermedio
-
-#define MOVER	1
-#define SUMAR	2
-#define SALTAR	3
-#define SALTARV	4
-#define SALTARF	5
-#define MENOR	6
-
-		#define RESTAR       7 
-		#define MULTIPLICAR  8
-		#define DIVIDIR      9
-
-
-
+void yyerror(char *m);
 %}
 
 %token INT FLOAT FORMATO ID IF ELSE NUM REAL WHILE DO FOR FUNCION
 %token LEENUM IMPRINUM
-%token CENTERO	%token CFLOAT	%token ID VAR
-%right '='
+%token CENTERO	CFLOAT VAR
+%right '=' NOT
 %left '?'
-%left OR	%left AND	%right NOT
+%left OR AND	
 %left IGUAL NOIGUAL MENORIGUAL MAYORIGUAL '<' '>'
 %left '+' '-'
 %left '*' '/'
@@ -74,11 +26,11 @@ void interprete();
 	programaC : listaDeclC ;
 	listaDeclC : listaDeclC declC | ;
 	declC : Tipo listaVar ';';
-	declC : Tipo ID '(' { IS($1,FUNCION);}	listaPar ')' bloque;
+	declC : Tipo ID '(' { IS(lexema,$1,FUNCION);}	listaPar ')' bloque;
 	Tipo : INT  | FLOAT ;
 	
-	listaVar : ID ',' { IS(tipoVar,VAR); }	listaVar | ID { IS(tipoVar,VAR); };
-	listaPar : Tipo ID { IS($1,VAR); }',' listaPar   | Tipo ID { IS($1,VAR); };
+	listaVar : ID ',' { IS(lexema,tipoVar,VAR); }	listaVar | ID { IS(lexema,tipoVar,VAR); };
+	listaPar : Tipo ID { IS(lexema,$1,VAR); }',' listaPar   | Tipo ID { IS(lexema,$1,VAR); };
 	bloque : '{' listaVarLoc listaProp '}';
 	listaVarLoc : /* Nada */ | Tipo listaVar ';' listaVarLoc ;
 	listaProp : listaProp prop | ;
@@ -87,7 +39,6 @@ void interprete();
 	prop : IF '(' expr ')' prop ;
 /*    prop        : IF '(' expr  ')'  {genCodigo(SALTARF,$3,0,-1); $$ = cx; } prop  { TABCOD[$5].a3 = cx + 1;  } ;	*/
 	prop : IF '(' expr ')' prop ELSE prop ;
-/*  prop : WHILE '('               EXPRESION ')' prop;  */
 	prop : WHILE '(' {$$ = cx + 1;}  expr    ')' 	{genCodigo(SALTARF,$4,0,-1); /* Destino no resuelto */
 	   						                         $$ = cx; /* Falta llenar cuarto componente de este salto */} 
 				                                 prop	
@@ -95,8 +46,7 @@ void interprete();
 							                         TABCOD[$6].a3 = cx + 1; /* Llenando destino de sltar falso */
 				                                    } ;
 	prop : FOR '(' expr ';' expr ';' expr ')' prop ;
-/*  prop : IMPRINUM '(' expr ')' ;  */	
-	prop : IMPRINUM '(' /*FORMATO	{ $$ = nTS; IS(FORMATO,0);} ','*/  expr ')'	{genCodigo(IMPRINUM,$3,0,0);};
+	prop : IMPRINUM '(' /*FORMATO	{ $$ = nTS; IS(lexema,FORMATO,0);} ','*/  expr ')'	{genCodigo(IMPRINUM,$3,0,0);};
 	prop : expr ;
 	expr : expr OR expr ;
 	expr : expr AND expr ;
@@ -108,19 +58,15 @@ void interprete();
 	expr : expr MENORIGUAL expr ;	/*	sumar,a+b,a,b */
 	expr : expr MAYORIGUAL expr ;
 	expr : expr '+' expr  	{int n = genvartemp();	genCodigo(SUMAR,n,$1,$3);  $$=n;};
-/*	expr : expr '-' expr ;
-	expr : expr '*' expr ;
-	expr : expr '/' expr ; */
 	
-        expr : expr '-' expr {int n = genvartemp(); genCodigo(RESTAR,n,$1,$3);$$=n;} ; /*  restar,a-b,a,b   */;
-        expr : expr '*' expr {int n = genvartemp(); genCodigo(MULTIPLICAR,n,$1,$3);$$=n;}; /*multiplicar,a*b,a,b*/;
-        expr : expr '/' expr {int n = genvartemp(); genCodigo(DIVIDIR,n,$1,$3);$$=n;} ; /*  dividir,a/b,a,b   */;
+    expr : expr '-' expr {int n = genvartemp(); genCodigo(RESTAR,n,$1,$3);$$=n;} ; 
+    expr : expr '*' expr {int n = genvartemp(); genCodigo(MULTIPLICAR,n,$1,$3);$$=n;};
+    expr : expr '/' expr {int n = genvartemp(); genCodigo(DIVIDIR,n,$1,$3);$$=n;} ; 
 
-	
 	expr : expr '?' expr ':' expr ;
 	expr : ID {$$ = localizaSimbolo(lexema);};
-	expr : NUM  {IS($1,NUM);$$ = localizaSimbolo(lexema);TS[$$].a3.entero = atoi(lexema);};	/* Codigo 1 */
-	expr : REAL	{float v; IS($1,REAL);$$ = localizaSimbolo(lexema);	sscanf(lexema,"%f",&v);TS[$$].a3.real = v;};	/* Codigo 2 */
+	expr : NUM  {IS(lexema,$1,NUM);$$ = localizaSimbolo(lexema);TS[$$].a3.entero = atoi(lexema);};	/* Codigo 1 */
+	expr : REAL	{float v; IS(lexema,$1,REAL);$$ = localizaSimbolo(lexema);	sscanf(lexema,"%f",&v);TS[$$].a3.real = v;};	/* Codigo 2 */
 	expr : ID '=' { $$ = localizaSimbolo(lexema); }	expr {genCodigo(MOVER,$3,$4,0);};	/* Codigo 3 */
 	expr : ID '[' expr ']' ;
 	expr : ID '[' expr ']' '=' expr;
@@ -179,25 +125,26 @@ void muestraCodigo()
 int localizaSimbolo(char *n)
 {
 	int i;
-	for(i=0;i<nTS;i++) if(strcmp(n,TS[i].nombre) == 0) return i;
+	for(i=0;i<nTS;i++) 
+		if(strcmp(n,TS[i].nombre) == 0) 
+			return i;
+
 	return -1;
 }
 
-int insertaSimbolo(char *n, int t)
+void IS(char *lexema, int tipo, int clase)
 {
-	if(localizaSimbolo(n)>=0) return -1;
-	strcpy(TS[nTS].nombre,n);
-	TS[nTS].a1 = t;
-	TS[nTS].a2 = TS[nTS].a3.real = 0;
-	return nTS++;	
-}
+	if(localizaSimbolo(lexema)>=0) 
+		printf("actualizar, ya declarado\n");
 
-void IS(int tipo,int clase)
-{
-	int i;
-	i = insertaSimbolo(lexema, tipo); TS[i].a2=clase;
-	//printf("*** %d %s\n",tipo,TS[i].nombre);
-	//if(i<0) yyerror("Identifiador ya declarado.");
+	else 
+	{
+		strcpy(TS[nTS].nombre,lexema);
+		TS[nTS].a1 = tipo;
+		TS[nTS].a2 = clase;
+		TS[nTS].a3.real = 0;
+		nTS++;
+	}	
 }
 
 void muestraSimbolo()
@@ -206,6 +153,37 @@ void muestraSimbolo()
 	for(i=0,pTS=TS;i<nTS;i++,pTS++)
 		printf("%20s %d %d %g\n",pTS->nombre,pTS->a1,pTS->a2,pTS->a3.real);
 } 
+
+void interprete(){
+	int icx,op,a1,a2,a3;
+	float v;
+	printf("Programa en ejecución: \n");
+	icx = 0;
+	while(1){
+		if(icx==cx+1) break;
+		op = TABCOD[icx].op;
+		a1 = TABCOD[icx].a1;
+		a2 = TABCOD[icx].a2;
+		a3 = TABCOD[icx].a3;
+		switch(op)
+		{
+		case SALTAR : icx = a3; continue;
+		case SALTARF : if(TS[a1].a3.entero==0) { icx = a3; continue;}
+				else break;
+		case IMPRINUM : printf("%8.2f\n",TS[a1].a3.real); break;
+		case MOVER : TS[a1].a3.real = TS[a2].a3.real; break;
+		case SUMAR : TS[a1].a3.real = TS[a2].a3.real + TS[a3].a3.real; break;
+		case MENOR : TS[a1].a3.entero = (TS[a2].a3.real < TS[a3].a3.real); break;
+		
+                case RESTAR      : TS[a1].a3.real = TS[a2].a3.real - TS[a3].a3.real; break;
+                case MULTIPLICAR : TS[a1].a3.real = TS[a2].a3.real * TS[a3].a3.real; break;
+                case DIVIDIR     : TS[a1].a3.real = TS[a2].a3.real / TS[a3].a3.real; break;
+		
+		}
+	icx++;
+	}  //Fin de 'while'
+	}  //Fin de funcion
+
 
 
 int yylex()
@@ -226,18 +204,20 @@ int yylex()
       if (strcmp(lexema,"for")==0) return FOR;
       if (strcmp(lexema,"do")==0) return DO;
       if (strcmp(lexema,"print")==0) return IMPRINUM;
-      if (strcmp(lexema,"chao")==0) return EOF;
       
       /* van otras palabras reservadas */
       
       return yylval=ID;
     }
-/*    if (c=='\"') {
+
+    if(c==EOF) return EOF;
+
+    if (c=='\"') {
       p=lexema;
       do  { *p++=c; c=getchar(); } while (c!='\"');
       ungetc(c,stdin); *p=0;
       return yylval=FORMATO;
-    }*/
+    }
   
     if ( c=='(' || c==')' || c==';' || c==',' || c=='{' || c=='}' ||
          c==',' || c=='*' || c=='/' || c=='+' || c=='-' || c=='?' ||
@@ -286,45 +266,18 @@ int yylex()
     yyerror("¡¡¡ caracter ilegal !!!");
 }
 
-yyerror(char *m)  { 
+void yyerror(char *m)  { 
 	fprintf(stderr,"error de sintaxis %s\n",m); 
 	getchar(); 
 	exit(0);
 	}
-
-void interprete(){
-	int icx,op,a1,a2,a3;
-	float v;
-	printf("Programa en ejecución: \n");
-	icx = 0;
-	while(1){
-		if(icx==cx+1) break;
-		op = TABCOD[icx].op;
-		a1 = TABCOD[icx].a1;
-		a2 = TABCOD[icx].a2;
-		a3 = TABCOD[icx].a3;
-		switch(op)
-		{
-		case SALTAR : icx = a3; continue;
-		case SALTARF : if(TS[a1].a3.entero==0) { icx = a3; continue;}
-				else break;
-		case IMPRINUM : printf("%8.2f\n",TS[a1].a3.real); break;
-		case MOVER : TS[a1].a3.real = TS[a2].a3.real; break;
-		case SUMAR : TS[a1].a3.real = TS[a2].a3.real + TS[a3].a3.real; break;
-		case MENOR : TS[a1].a3.entero = (TS[a2].a3.real < TS[a3].a3.real); break;
-		
-                case RESTAR      : TS[a1].a3.real = TS[a2].a3.real - TS[a3].a3.real; break;
-                case MULTIPLICAR : TS[a1].a3.real = TS[a2].a3.real * TS[a3].a3.real; break;
-                case DIVIDIR     : TS[a1].a3.real = TS[a2].a3.real / TS[a3].a3.real; break;
-		
-		}
-	icx++;
-	}  //Fin de 'while'
-	}  //Fin de funcion
 	
-main()  {
+int main()  
+{
 	yyparse();
 	muestraSimbolo();
 	muestraCodigo();
 	interprete();
-	}
+
+	return 0;
+}
