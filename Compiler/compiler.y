@@ -11,7 +11,7 @@ int yylex();
 void yyerror(char *m);
 %}
 
-%token INT FLOAT NUM REAL FORMATO ID IF ELSE WHILE DO FOR 
+%token INT FLOAT BOOL STRING NUM REAL BOOLEANO LETRAS FORMATO ID IF ELSE WHILE DO FOR TEMP
 %token LEENUM IMPRINUM COMENTARIO
 %token CENTERO	CFLOAT VAR FUNCION ARREGLO
 %right '=' NOT
@@ -33,14 +33,14 @@ void yyerror(char *m);
 	listComent: listComent comentario |;
 	comentario: COMENTARIO | ;
 
-	Tipo : INT  | FLOAT;
+	Tipo : INT  | FLOAT | BOOL | STRING;
 	
 	listaVar : ID ',' { IS(lexema,tipoVar,VAR); }	listaVar | ID { IS(lexema,tipoVar,VAR); } | ID { IS(lexema,tipoVar,ARREGLO); } '[' NUM ']' ;
 	listaPar : Tipo ID { IS(lexema,$1,VAR); }',' listaPar   | Tipo ID { IS(lexema,$1,VAR); };
 
-	bloque : '{' listaVarLoc listaProp '}';
+	bloque : '{' comentario listaVarLoc listaProp '}';
 	listaVarLoc : Tipo listaVar ';' listaVarLoc comentario | ;
-	listaProp : listaProp prop | ;
+	listaProp : listaProp prop comentario | ;
 
 	prop : ';' ;
 	prop : bloque ;
@@ -56,9 +56,9 @@ void yyerror(char *m);
 	prop : IMPRINUM '(' /*FORMATO	{ $$ = nTS; IS(lexema,FORMATO,0); printf(lexema);} ','*/  expr ')'	{genCodigo(IMPRINUM,$3,0,0);};
 
 	prop : expr ;
-	expr : expr OR expr {int n = genvartemp(0);	genCodigo(OPER_OR,n,$1,$3);  $$=n;} ;
-	expr : expr AND expr {int n = genvartemp(0);	genCodigo(OPER_AND,n,$1,$3);  $$=n;} ;
-	expr : NOT expr {int n = genvartemp(0); genCodigo(NEGACION,n,$2,0); $$=n;};
+	expr : expr OR expr {int p = localizaSimbolo(lexema); int n = genvartemp(p); genCodigo(OPER_OR,n,$1,$3);  $$=n;} ;
+	expr : expr AND expr {int p = localizaSimbolo(lexema); int n = genvartemp(p); genCodigo(OPER_AND,n,$1,$3);  $$=n;} ;
+	expr : NOT expr {int p = localizaSimbolo(lexema); int n = genvartemp(p); genCodigo(NEGACION,n,$2,0); $$=n;};
 	expr : expr IGUAL expr {int n = genvartemp(0);	genCodigo(IGUAL,n,$1,$3);  $$=n;} ;
 	expr : expr NOIGUAL expr {int n = genvartemp(0);	genCodigo(NOIGUAL,n,$1,$3);  $$=n;} ;
 
@@ -75,7 +75,9 @@ void yyerror(char *m);
 	expr : expr '?' expr ':' expr ;
 	expr : ID {$$ = localizaSimbolo(lexema);};
 	expr : NUM  {IS(lexema,INT,NUM);$$ = localizaSimbolo(lexema);TS[$$].a3.entero = atoi(lexema);};	
-	/*expr : BOOLEANO {IS(lexema,$1,BOOLEANO);$$ = localizaSimbolo(lexema);TS[$$].a3.booleano = lexema;};*/
+	expr : BOOLEANO {IS(lexema,BOOL,BOOLEANO);$$ = localizaSimbolo(lexema);strcpy(TS[$$].a3.booleano,lexema);};
+
+	expr : LETRAS {IS(lexema,STRING,LETRAS);$$ = localizaSimbolo(lexema);strcpy(TS[$$].a3.cadena,lexema);};
 	
 	expr : REAL	{float v; IS(lexema,FLOAT,REAL);$$ = localizaSimbolo(lexema);	sscanf(lexema,"%f",&v);TS[$$].a3.real = v;};	
 	expr : ID '=' { $$ = localizaSimbolo(lexema); }	expr {genCodigo(MOVER,$3,$4,0);} ; 
@@ -102,7 +104,25 @@ int genvartemp(int pos)
 	sprintf(t,"T%-2d",indicevartemp++);
 	strcpy(TS[nTS].nombre,t);
 	TS[nTS].a1 = TS[pos].a1;
-	TS[nTS].a2 = VAR;
+	TS[nTS].a2 = TEMP;
+	if (TS[nTS].a1==INT)
+		strcpy(TS[nTS].tipo,"int");
+	else if (TS[nTS].a1==FLOAT)
+		strcpy(TS[nTS].tipo,"float");
+	else if (TS[nTS].a1==STRING)
+		strcpy(TS[nTS].tipo,"string");	
+	else		
+		strcpy(TS[nTS].tipo,"bool");
+
+	if (TS[nTS].a2==VAR)
+		strcpy(TS[nTS].clase,"var");
+	else if (TS[nTS].a2==FUNCION)
+		strcpy(TS[nTS].clase,"func");
+	else if (TS[nTS].a2==ARREGLO)
+		strcpy(TS[nTS].clase,"array");	
+	else 
+		strcpy(TS[nTS].clase,"temp");		
+
 	return nTS++;
 }
 
@@ -113,6 +133,12 @@ void muestraCodigo()
 		op = TABCOD[i].op; a1 = TABCOD[i].a1;
 		a2 = TABCOD[i].a2; a3 = TABCOD[i].a3;
 		printf("%2d) ",i);
+
+		if (a1==-1 || a2==-1 || a3==-1) {
+			printf("Error: variable no declarada\n");
+			exit(0);
+		}
+
 		switch(op)
 		{
 		case SUMAR: if(TS[a3].a1 == INT && TS[a2].a1 == INT)
@@ -120,7 +146,7 @@ void muestraCodigo()
 					else if(TS[a3].a1 == FLOAT && TS[a2].a1 == FLOAT)
 						printf("SUMAR %s = %s + %s\n",TS[a1].nombre,TS[a2].nombre,TS[a3].nombre);
 					else {
-						printf("Error asignando tipo diferente\n");
+						printf("Error: asignando tipo diferente %s\n", TS[a1].nombre);
 						exit(0);		
 					}		
 	 				break;	
@@ -132,12 +158,17 @@ void muestraCodigo()
 		case SALTAR: printf("SALTAR %d \n",a3);break;
 		case SALTARV: printf("SALTARV %s %d \n",TS[a1].nombre,a3);break;
 		case SALTARF: printf("SALTARF %s %d \n",TS[a1].nombre,a3);break;
-		case MOVER: if(TS[a1].a1 == INT && TS[a2].a1 == INT)
+		case MOVER: 
+					if(TS[a1].a1 == INT && TS[a2].a1 == INT)
 						printf("MOVER %s %s \n",TS[a1].nombre,TS[a2].nombre);
 					else if(TS[a1].a1 == FLOAT && TS[a2].a1 == FLOAT)
 						printf("MOVER %s %s \n",TS[a1].nombre,TS[a2].nombre);
+					else if(TS[a1].a1 == BOOL && TS[a2].a1 == BOOL)
+						printf("MOVER %s %s \n",TS[a1].nombre,TS[a2].nombre);	
+					else if(TS[a1].a1 == STRING && TS[a2].a1 == STRING)
+						printf("MOVER %s %s \n",TS[a1].nombre,TS[a2].nombre);		
 					else {
-						printf("Error asignando tipo diferente\n");
+						printf("Error: asignando tipo diferente %s\n", TS[a1].nombre);
 						exit(0);		
 					}		
 	 				break;
@@ -148,7 +179,7 @@ void muestraCodigo()
 							else if(TS[a3].a1 == FLOAT && TS[a2].a1 == FLOAT)
 								printf("RESTAR %s = %s - %s\n",TS[a1].nombre,TS[a2].nombre,TS[a3].nombre);
 							else {
-								printf("Error asignando tipo diferente\n");
+								printf("Error: asignando tipo diferente %s\n", TS[a1].nombre);
 								exit(0);		
 							}		
 			 				break;	
@@ -158,7 +189,7 @@ void muestraCodigo()
 						else if(TS[a3].a1 == FLOAT && TS[a2].a1 == FLOAT)
 							printf("MULTIPLICAR %s = %s * %s\n",TS[a1].nombre,TS[a2].nombre,TS[a3].nombre);
 						else {
-							printf("Error asignando tipo diferente\n");
+							printf("Error: asignando tipo diferente %s\n", TS[a1].nombre);
 							exit(0);		
 						}		
 		 				break;	
@@ -168,15 +199,21 @@ void muestraCodigo()
 						else if(TS[a3].a1 == FLOAT && TS[a2].a1 == FLOAT)
 							printf("DIVIDIR %s = %s / %s\n",TS[a1].nombre,TS[a2].nombre,TS[a3].nombre);
 						else {
-							printf("Error asignando tipo diferente\n");
+							printf("Error: asignando tipo diferente %s\n", TS[a1].nombre);
 							exit(0);		
 						}		
 		 				break;	
 		case OPER_OR: printf("OR %s = %s || %s\n",TS[a1].nombre,TS[a2].nombre,TS[a3].nombre);break;
 		case OPER_AND: printf("AND %s = %s && %s\n",TS[a1].nombre,TS[a2].nombre,TS[a3].nombre);break;
 
-		case NEGACION: printf("NOT %s = ! %s\n",TS[a1].nombre, TS[a2].nombre);break;
-
+		case NEGACION: 
+						if (TS[a2].a1 == BOOL)
+							printf("NOT %s = ! %s\n",TS[a1].nombre, TS[a2].nombre);
+						else {
+							printf("Error: operacion invalida %s\n", TS[a1].nombre);
+							exit(0);			
+						}		
+		 				break;		
 		case IGUAL: printf("IGUAL %s = %s == %s\n",TS[a1].nombre,TS[a2].nombre,TS[a3].nombre);break;
 		case NOIGUAL: printf("NOIGUAL %s = %s != %s\n",TS[a1].nombre,TS[a2].nombre,TS[a3].nombre);break;
 
@@ -198,15 +235,42 @@ int localizaSimbolo(char *n)
 
 void IS(char *lexema, int tipo, int clase)
 {
-	if(localizaSimbolo(lexema)>=0) 
-		;
-		//printf("actualizar, ya declarado\n");
+	int posicion;
+	posicion = localizaSimbolo(lexema);
+
+	if(posicion>=0) {
+		if(TS[posicion].a2==VAR) {
+			if(TS[posicion].a1==tipo)
+				printf("Error: redeclaracion de %s %s\n",TS[posicion].tipo,lexema);
+			else	
+				printf("Error: conflicto declaracion %s %s\n",TS[posicion].tipo,lexema);
+			exit(0);
+		}
+	}
 
 	else 
 	{
 		strcpy(TS[nTS].nombre,lexema);
 		TS[nTS].a1 = tipo;
 		TS[nTS].a2 = clase;
+		if (TS[nTS].a1==INT)
+			strcpy(TS[nTS].tipo,"int");
+		else if (TS[nTS].a1==FLOAT)
+			strcpy(TS[nTS].tipo,"float");
+		else if (TS[nTS].a1==STRING)
+			strcpy(TS[nTS].tipo,"string");	
+		else		
+			strcpy(TS[nTS].tipo,"bool");
+
+		if (TS[nTS].a2==VAR)
+			strcpy(TS[nTS].clase,"var");
+		else if (TS[nTS].a2==FUNCION)
+			strcpy(TS[nTS].clase,"func");
+		else if (TS[nTS].a2==ARREGLO)
+			strcpy(TS[nTS].clase,"array");	
+		else 
+			strcpy(TS[nTS].clase,"temp");		
+
 		nTS++;
 	}	
 }
@@ -214,8 +278,17 @@ void IS(char *lexema, int tipo, int clase)
 void muestraSimbolo()
 {
 	int i;
-	for(i=0,pTS=TS;i<nTS;i++,pTS++)
-		printf("%20s %d %d %g\n",pTS->nombre,pTS->a1,pTS->a2,pTS->a3.real);
+	printf("\t\t\tTabla de Simbolos \n");
+	for(i=0,pTS=TS;i<nTS;i++,pTS++) {
+		if (pTS->a1==INT)
+			printf("%20s \t%s \t%s \t%d\n",pTS->nombre,pTS->tipo,pTS->clase,pTS->a3.entero);
+		else if (pTS->a1==FLOAT)
+			printf("%20s \t%s \t%s \t%g\n",pTS->nombre,pTS->tipo,pTS->clase,pTS->a3.real);
+		else if (pTS->a1==BOOL)
+			printf("%20s \t%s \t%s \t%s\n",pTS->nombre,pTS->tipo,pTS->clase,pTS->a3.booleano);		
+		else
+			printf("%20s \t%s \t%s \t%s\n",pTS->nombre,pTS->tipo,pTS->clase,pTS->a3.cadena);	
+	}
 } 
 
 void interprete(){
@@ -240,8 +313,10 @@ void interprete(){
 			case IMPRINUM : 
 							if(TS[a1].a1 == INT)
 								printf("    %d\n",TS[a1].a3.entero); 
-							/*else if(TS[a1].a1 == BOOLEANO)
-								printf("    %s\n",TS[a1].a3.booleano); 	*/
+							else if(TS[a1].a1 == BOOL)
+								printf("    %s\n",TS[a1].a3.booleano); 	
+							else if(TS[a1].a1 == STRING)
+								printf("    %s\n",TS[a1].a3.cadena); 		
 							else	
 								printf("%8.2f\n",TS[a1].a3.real);
 							break;
@@ -250,6 +325,10 @@ void interprete(){
 								TS[a1].a3.entero = TS[a2].a3.entero;
 							else if(TS[a1].a1 == FLOAT)
 								TS[a1].a3.real = TS[a2].a3.real;
+							else if(TS[a1].a1 == STRING)
+								strcpy(TS[a1].a3.cadena,TS[a2].a3.cadena);	
+							else 
+								strcpy(TS[a1].a3.booleano,TS[a2].a3.booleano);	
 			 				break;
 
 			case MENOR : TS[a1].a3.real = (TS[a2].a3.real < TS[a3].a3.real); break;
@@ -282,8 +361,12 @@ void interprete(){
             case OPER_OR : TS[a1].a3.real = (TS[a2].a3.real || TS[a3].a3.real); break;
             case OPER_AND : TS[a1].a3.real = (TS[a2].a3.real && TS[a3].a3.real); break;
 
-            case NEGACION: TS[a1].a3.entero = ! TS[a2].a3.entero; break;
-            				/*TS[a1].a3.booleano = ! TS[a2].a3.booleano ;break;*/
+            case NEGACION: 
+            				if (strcmp(TS[a2].a3.booleano,"true")==0)
+            			   		strcpy(TS[a1].a3.booleano,"false");
+            			   	else	
+            				 	strcpy(TS[a1].a3.booleano,"true");
+            				break;
 
             case IGUAL : TS[a1].a3.real = (TS[a2].a3.real == TS[a3].a3.real); break;
             case NOIGUAL : TS[a1].a3.real = (TS[a2].a3.real != TS[a3].a3.real); break;
@@ -316,13 +399,16 @@ int yylex()
 		if (strcmp(lexema,"for")==0) return FOR;
 		if (strcmp(lexema,"do")==0) return DO;
 		if (strcmp(lexema,"print")==0) return IMPRINUM;
-		/*if (strcmp(lexema,"true")==0) return BOOLEANO;*/
-		/*if (strcmp(lexema,"false")==0) return BOOLEANO;*/
+		if (strcmp(lexema,"bool")==0) return tipoVar=yylval=BOOL;
+		if (strcmp(lexema,"true")==0) return yylval=BOOLEANO;
+		if (strcmp(lexema,"false")==0) return yylval=BOOLEANO;
+		if (strcmp(lexema,"string")==0) return tipoVar=yylval=STRING;
       
       	return yylval=ID;
     }
 
-    if (c==EOF) return EOF;
+    if (c==EOF) 
+    	return EOF;
   
     if ( c=='(' || c==')' || c==';' || c==',' || c=='{' || c=='}' ||
          c==',' || c=='*' || c=='+' || c=='-' || c=='?' ||
@@ -333,12 +419,19 @@ int yylex()
     	if(c=='/') 
     	{
 			do c=getchar(); while(c!='\n');
+			if (c=='\n')
+    			numeroLinea++;
 			return COMENTARIO;
     	}
 
 		if(c=='*') 
 		{ 
-			do c=getchar(); while(c!='*');
+			do {
+				c=getchar();
+				if (c=='\n')
+    				numeroLinea++; 
+			}while(c!='*');
+
 			c=getchar();
 		 	return COMENTARIO;
 		}
@@ -388,6 +481,17 @@ int yylex()
     	ungetc(c,stdin); return '|';
     }
 
+    if (c=='\"')
+    {	
+    	p=lexema;
+    	c=getchar();
+		do  { *p++=c; c=getchar(); } while (c!='\"');
+
+		*p=0;
+		c=getchar();
+		return yylval=LETRAS;
+    }
+
     if (isdigit(c)) 
     { 
     	p=lexema;
@@ -418,6 +522,6 @@ int main()
 	muestraSimbolo();
 	muestraCodigo();
 	interprete();
-
+	muestraSimbolo();
 	return 0;
 }

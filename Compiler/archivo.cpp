@@ -1,12 +1,27 @@
+// Ejemplo
 
 int main(int x){
-float a,b,c,d;
-a=1.0;
-b=2.0;
-c=6.5;
-a=a+b-10.0*7.9; print(a);
-b=a-b;
-print(b);
-c=c*2.0; print(c);
-d=a/2.0; print(d);
+	// Variables
+	float a,b,c,d; 
+	string mensaje;
+	bool z;
+	int arreglo[100];
+
+	// asignando
+	mensaje = "hello";
+	z = !true;
+	a=1.1;
+	b=2.2; // valor
+	c=3.3; 
+	a=a+5.1 + "hola"; 
+	b=a-b;
+	c=c*2.0; 
+	d=a/2.0; 
+
+	print(a);
+	print(b);
+	print(c);
+	print(d);
+	print(z);
+	print(mensaje);
 }

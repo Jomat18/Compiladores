@@ -47,59 +47,69 @@ extern int yydebug;
   {
     INT = 258,
     FLOAT = 259,
-    NUM = 260,
-    REAL = 261,
-    FORMATO = 262,
-    ID = 263,
-    IF = 264,
-    ELSE = 265,
-    WHILE = 266,
-    DO = 267,
-    FOR = 268,
-    LEENUM = 269,
-    IMPRINUM = 270,
-    COMENTARIO = 271,
-    CENTERO = 272,
-    CFLOAT = 273,
-    VAR = 274,
-    FUNCION = 275,
-    ARREGLO = 276,
-    NOT = 277,
-    OR = 278,
-    AND = 279,
-    IGUAL = 280,
-    NOIGUAL = 281,
-    MENORIGUAL = 282,
-    MAYORIGUAL = 283
+    BOOL = 260,
+    STRING = 261,
+    NUM = 262,
+    REAL = 263,
+    BOOLEANO = 264,
+    LETRAS = 265,
+    FORMATO = 266,
+    ID = 267,
+    IF = 268,
+    ELSE = 269,
+    WHILE = 270,
+    DO = 271,
+    FOR = 272,
+    TEMP = 273,
+    LEENUM = 274,
+    IMPRINUM = 275,
+    COMENTARIO = 276,
+    CENTERO = 277,
+    CFLOAT = 278,
+    VAR = 279,
+    FUNCION = 280,
+    ARREGLO = 281,
+    NOT = 282,
+    OR = 283,
+    AND = 284,
+    IGUAL = 285,
+    NOIGUAL = 286,
+    MENORIGUAL = 287,
+    MAYORIGUAL = 288
   };
 #endif
 /* Tokens.  */
 #define INT 258
 #define FLOAT 259
-#define NUM 260
-#define REAL 261
-#define FORMATO 262
-#define ID 263
-#define IF 264
-#define ELSE 265
-#define WHILE 266
-#define DO 267
-#define FOR 268
-#define LEENUM 269
-#define IMPRINUM 270
-#define COMENTARIO 271
-#define CENTERO 272
-#define CFLOAT 273
-#define VAR 274
-#define FUNCION 275
-#define ARREGLO 276
-#define NOT 277
-#define OR 278
-#define AND 279
-#define IGUAL 280
-#define NOIGUAL 281
-#define MENORIGUAL 282
-#define MAYORIGUAL 283
+#define BOOL 260
+#define STRING 261
+#define NUM 262
+#define REAL 263
+#define BOOLEANO 264
+#define LETRAS 265
+#define FORMATO 266
+#define ID 267
+#define IF 268
+#define ELSE 269
+#define WHILE 270
+#define DO 271
+#define FOR 272
+#define TEMP 273
+#define LEENUM 274
+#define IMPRINUM 275
+#define COMENTARIO 276
+#define CENTERO 277
+#define CFLOAT 278
+#define VAR 279
+#define FUNCION 280
+#define ARREGLO 281
+#define NOT 282
+#define OR 283
+#define AND 284
+#define IGUAL 285
+#define NOIGUAL 286
+#define MENORIGUAL 287
+#define MAYORIGUAL 288
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED

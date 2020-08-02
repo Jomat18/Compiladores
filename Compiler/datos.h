@@ -1,9 +1,7 @@
 #ifndef DATOS_H
 #define DATOS_H
 
-//#include <stdbool.h>
-
-//#include <string.h>
+#include <stdbool.h>
 
 // Definición de las operaciones de lenguaje intermedio
 
@@ -29,15 +27,17 @@ typedef union
 {
 	int entero;
 	float real;
-//	bool booleano;
-//	string cadena;
+	char booleano[30];
+	char cadena[30];
 
 } tipovalor;
 
 typedef struct 
 {
 	char nombre[30];
-	int a1,a2, linea;  	// a1: INT/FLOAT	a2: FUN/VAR/ARREGLO
+	int a1,a2, linea;  	// a1: INT/FLOAT/BOOL/STRING	a2: FUN/VAR/ARREGLO
+	char tipo[30];
+	char clase[30];
 	tipovalor a3; 	// guarda valor
 } tipoTablaSimbolo;
 
@@ -58,6 +58,7 @@ char lexema[80];
 tipoTablaSimbolo TS[100], *pTS;
 int nTS = 0;
 int tipoVar;
+int numeroLinea=1;
 
 void IS(char *, int , int);
 int localizaSimbolo(char *);
