@@ -72,7 +72,7 @@
 
 #include "datos.h"
 
-int yylex();
+int yylex(void);
 void yyerror(char *m);
 
 #line 79 "y.tab.c" /* yacc.c:339  */
@@ -2009,6 +2009,8 @@ void muestraSimbolo()
 	}
 } 
 
+// Generacion de codigo intermedio
+
 void interprete(){
 	int icx,op,a1,a2,a3;
 	float v;
@@ -2094,7 +2096,7 @@ void interprete(){
 }  
 
 
-
+// Analizador lexico
 int yylex()
 {
 	int c;  
@@ -2236,7 +2238,7 @@ void yyerror(char *m)  {
 	
 int main()  
 {
-	yyparse();
+	yyparse(); // llama automáticamente a yylex para obtener cada token
 	muestraSimbolo();
 	muestraCodigo();
 	interprete();

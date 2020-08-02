@@ -39,6 +39,7 @@ typedef struct
 	char tipo[30];
 	char clase[30];
 	tipovalor a3; 	// guarda valor
+					// Localizacion en memoria
 } tipoTablaSimbolo;
 
 //printf("%d\n", sizeof(a3));
