@@ -47,55 +47,59 @@ extern int yydebug;
   {
     INT = 258,
     FLOAT = 259,
-    FORMATO = 260,
-    ID = 261,
-    IF = 262,
-    ELSE = 263,
-    NUM = 264,
-    REAL = 265,
+    NUM = 260,
+    REAL = 261,
+    FORMATO = 262,
+    ID = 263,
+    IF = 264,
+    ELSE = 265,
     WHILE = 266,
     DO = 267,
     FOR = 268,
-    FUNCION = 269,
-    LEENUM = 270,
-    IMPRINUM = 271,
+    LEENUM = 269,
+    IMPRINUM = 270,
+    COMENTARIO = 271,
     CENTERO = 272,
     CFLOAT = 273,
     VAR = 274,
-    NOT = 275,
-    OR = 276,
-    AND = 277,
-    IGUAL = 278,
-    NOIGUAL = 279,
-    MENORIGUAL = 280,
-    MAYORIGUAL = 281
+    FUNCION = 275,
+    ARREGLO = 276,
+    NOT = 277,
+    OR = 278,
+    AND = 279,
+    IGUAL = 280,
+    NOIGUAL = 281,
+    MENORIGUAL = 282,
+    MAYORIGUAL = 283
   };
 #endif
 /* Tokens.  */
 #define INT 258
 #define FLOAT 259
-#define FORMATO 260
-#define ID 261
-#define IF 262
-#define ELSE 263
-#define NUM 264
-#define REAL 265
+#define NUM 260
+#define REAL 261
+#define FORMATO 262
+#define ID 263
+#define IF 264
+#define ELSE 265
 #define WHILE 266
 #define DO 267
 #define FOR 268
-#define FUNCION 269
-#define LEENUM 270
-#define IMPRINUM 271
+#define LEENUM 269
+#define IMPRINUM 270
+#define COMENTARIO 271
 #define CENTERO 272
 #define CFLOAT 273
 #define VAR 274
-#define NOT 275
-#define OR 276
-#define AND 277
-#define IGUAL 278
-#define NOIGUAL 279
-#define MENORIGUAL 280
-#define MAYORIGUAL 281
+#define FUNCION 275
+#define ARREGLO 276
+#define NOT 277
+#define OR 278
+#define AND 279
+#define IGUAL 280
+#define NOIGUAL 281
+#define MENORIGUAL 282
+#define MAYORIGUAL 283
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
