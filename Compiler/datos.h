@@ -20,6 +20,8 @@
 #define OPER_OR 13
 #define OPER_AND 14
 #define NEGACION 15
+#define MODULO 16
+#define POTENCIA 17
 
 /* Tabla de simbolos */
 
@@ -59,7 +61,7 @@ char lexema[80];
 tipoTablaSimbolo TS[100], *pTS;
 int nTS = 0;
 int tipoVar;
-int numeroLinea=1;
+int numeroLinea=0;
 
 void IS(char *, int , int);
 int localizaSimbolo(char *);
@@ -68,6 +70,7 @@ void muestraSimbolo();
 void genCodigo(int ,int ,int ,int );
 int genvartemp(int);
 void muestraCodigo();
+void tabla_codigo();
 
 void interprete();
 

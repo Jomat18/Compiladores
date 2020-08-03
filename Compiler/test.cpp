@@ -4,5 +4,8 @@ using namespace std;
 
 int main() {
  	
- 	cout<<int("\"");
+ 	int a = 0 || 0;
+ 	cout<<a;
+
+ 	return 0;
 }

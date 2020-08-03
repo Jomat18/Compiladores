@@ -2,5 +2,5 @@
 
 yacc -d compiler.y
 
-gcc y.tab.c -o compiler
+gcc y.tab.c -o compiler -lm
 #./compiler <archivo.cpp
