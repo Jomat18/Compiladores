@@ -72,7 +72,7 @@
 #include <math.h>
 #define YYDEBUG 1   /* Depurador */
 
-#include "datos.h"  /* Tabla de simbolos y operaciones */
+#include "datos.h"  /* Tabla de simbolos y codigos */
 
 int yylex(void);
 void yyerror(char *m);
@@ -497,10 +497,10 @@ static const yytype_uint8 yyrline[] =
        0,    38,    38,    40,    40,    40,    42,    43,    43,    45,
       45,    46,    46,    48,    48,    48,    48,    50,    50,    50,
       50,    50,    51,    51,    51,    53,    54,    54,    55,    55,
-      57,    58,    59,    59,    61,    61,    61,    67,    68,    70,
-      71,    72,    73,    74,    75,    77,    78,    79,    80,    82,
-      83,    84,    85,    86,    87,    89,    90,    91,    92,    94,
-      96,    97,    97,    98,    99,   100
+      57,    58,    59,    59,    60,    60,    60,    66,    67,    69,
+      70,    71,    72,    73,    74,    76,    77,    78,    79,    81,
+      82,    83,    84,    85,    86,    88,    89,    90,    91,    93,
+      95,    96,    96,    97,    98,    99
 };
 #endif
 
@@ -1437,20 +1437,20 @@ yyreduce:
     break;
 
   case 34:
-#line 61 "compiler.y" /* yacc.c:1646  */
+#line 60 "compiler.y" /* yacc.c:1646  */
     {(yyval) = cx + 1;}
 #line 1443 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 35:
-#line 61 "compiler.y" /* yacc.c:1646  */
+#line 60 "compiler.y" /* yacc.c:1646  */
     {genCodigo(SALTARF,(yyvsp[-1]),0,-1); /* Destino no resuelto */
 	   						                         (yyval) = cx; /* Falta llenar cuarto componente de este salto */}
 #line 1450 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 36:
-#line 64 "compiler.y" /* yacc.c:1646  */
+#line 63 "compiler.y" /* yacc.c:1646  */
     {genCodigo(SALTAR,0,0,(yyvsp[-4])); /* Ir al comienzo de la expresión */
 							                         TABCOD[(yyvsp[-1])].a3 = cx + 1; /* Llenando destino de sltar falso */
 				                                    }
@@ -1458,145 +1458,145 @@ yyreduce:
     break;
 
   case 38:
-#line 68 "compiler.y" /* yacc.c:1646  */
+#line 67 "compiler.y" /* yacc.c:1646  */
     {genCodigo(IMPRINUM,(yyvsp[-1]),0,0);}
 #line 1464 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 71 "compiler.y" /* yacc.c:1646  */
+#line 70 "compiler.y" /* yacc.c:1646  */
     {int p = localizaSimbolo(lexema); int n = genvartemp(p); genCodigo(OPER_OR,n,(yyvsp[-2]),(yyvsp[0]));  (yyval)=n;}
 #line 1470 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 72 "compiler.y" /* yacc.c:1646  */
+#line 71 "compiler.y" /* yacc.c:1646  */
     {int p = localizaSimbolo(lexema); int n = genvartemp(p); genCodigo(OPER_AND,n,(yyvsp[-2]),(yyvsp[0]));  (yyval)=n;}
 #line 1476 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 73 "compiler.y" /* yacc.c:1646  */
+#line 72 "compiler.y" /* yacc.c:1646  */
     {int p = localizaSimbolo(lexema); int n = genvartemp(p); genCodigo(NEGACION,n,(yyvsp[0]),0); (yyval)=n;}
 #line 1482 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 74 "compiler.y" /* yacc.c:1646  */
+#line 73 "compiler.y" /* yacc.c:1646  */
     {int n = genvartemp(0);	genCodigo(IGUAL,n,(yyvsp[-2]),(yyvsp[0]));  (yyval)=n;}
 #line 1488 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 75 "compiler.y" /* yacc.c:1646  */
+#line 74 "compiler.y" /* yacc.c:1646  */
     {int n = genvartemp(0);	genCodigo(NOIGUAL,n,(yyvsp[-2]),(yyvsp[0]));  (yyval)=n;}
 #line 1494 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 77 "compiler.y" /* yacc.c:1646  */
+#line 76 "compiler.y" /* yacc.c:1646  */
     {int n = genvartemp(0);	genCodigo(MENOR,n,(yyvsp[-2]),(yyvsp[0]));  (yyval)=n;}
 #line 1500 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 78 "compiler.y" /* yacc.c:1646  */
+#line 77 "compiler.y" /* yacc.c:1646  */
     {int n = genvartemp(0);	genCodigo(MAYOR,n,(yyvsp[-2]),(yyvsp[0]));  (yyval)=n;}
 #line 1506 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 79 "compiler.y" /* yacc.c:1646  */
+#line 78 "compiler.y" /* yacc.c:1646  */
     {int n = genvartemp(0);	genCodigo(MENOR_IGUAL,n,(yyvsp[-2]),(yyvsp[0]));  (yyval)=n;}
 #line 1512 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 48:
-#line 80 "compiler.y" /* yacc.c:1646  */
+#line 79 "compiler.y" /* yacc.c:1646  */
     {int n = genvartemp(0);	genCodigo(MAYOR_IGUAL,n,(yyvsp[-2]),(yyvsp[0]));  (yyval)=n;}
 #line 1518 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 82 "compiler.y" /* yacc.c:1646  */
+#line 81 "compiler.y" /* yacc.c:1646  */
     {int p = localizaSimbolo(lexema); int n = genvartemp(p); genCodigo(SUMAR,n,(yyvsp[-2]),(yyvsp[0]));  (yyval)=n;}
 #line 1524 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 50:
-#line 83 "compiler.y" /* yacc.c:1646  */
+#line 82 "compiler.y" /* yacc.c:1646  */
     {int p = localizaSimbolo(lexema); int n = genvartemp(p); genCodigo(RESTAR,n,(yyvsp[-2]),(yyvsp[0]));(yyval)=n;}
 #line 1530 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 51:
-#line 84 "compiler.y" /* yacc.c:1646  */
+#line 83 "compiler.y" /* yacc.c:1646  */
     {int p = localizaSimbolo(lexema); int n = genvartemp(p); genCodigo(MULTIPLICAR,n,(yyvsp[-2]),(yyvsp[0]));(yyval)=n;}
 #line 1536 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 52:
-#line 85 "compiler.y" /* yacc.c:1646  */
+#line 84 "compiler.y" /* yacc.c:1646  */
     {int p = localizaSimbolo(lexema); int n = genvartemp(p); genCodigo(DIVIDIR,n,(yyvsp[-2]),(yyvsp[0]));(yyval)=n;}
 #line 1542 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 86 "compiler.y" /* yacc.c:1646  */
+#line 85 "compiler.y" /* yacc.c:1646  */
     {int p = localizaSimbolo(lexema); int n = genvartemp(p); genCodigo(MODULO,n,(yyvsp[-2]),(yyvsp[0]));(yyval)=n;}
 #line 1548 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 54:
-#line 87 "compiler.y" /* yacc.c:1646  */
+#line 86 "compiler.y" /* yacc.c:1646  */
     {int p = localizaSimbolo(lexema); int n = genvartemp(p); genCodigo(POTENCIA,n,(yyvsp[-2]),(yyvsp[0]));(yyval)=n;}
 #line 1554 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 56:
-#line 90 "compiler.y" /* yacc.c:1646  */
+#line 89 "compiler.y" /* yacc.c:1646  */
     {(yyval) = localizaSimbolo(lexema);}
 #line 1560 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 57:
-#line 91 "compiler.y" /* yacc.c:1646  */
+#line 90 "compiler.y" /* yacc.c:1646  */
     {IS(lexema,INT,NUM);(yyval) = localizaSimbolo(lexema);TS[(yyval)].a3.entero = atoi(lexema);}
 #line 1566 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 58:
-#line 92 "compiler.y" /* yacc.c:1646  */
+#line 91 "compiler.y" /* yacc.c:1646  */
     {IS(lexema,BOOL,BOOLEANO);(yyval) = localizaSimbolo(lexema);strcpy(TS[(yyval)].a3.booleano,lexema);}
 #line 1572 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 59:
-#line 94 "compiler.y" /* yacc.c:1646  */
+#line 93 "compiler.y" /* yacc.c:1646  */
     {IS(lexema,STRING,LETRAS);(yyval) = localizaSimbolo(lexema);strcpy(TS[(yyval)].a3.cadena,lexema);}
 #line 1578 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 60:
-#line 96 "compiler.y" /* yacc.c:1646  */
+#line 95 "compiler.y" /* yacc.c:1646  */
     {float v; IS(lexema,FLOAT,REAL);(yyval) = localizaSimbolo(lexema);	sscanf(lexema,"%f",&v);TS[(yyval)].a3.real = v;}
 #line 1584 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 61:
-#line 97 "compiler.y" /* yacc.c:1646  */
+#line 96 "compiler.y" /* yacc.c:1646  */
     { (yyval) = localizaSimbolo(lexema); }
 #line 1590 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 62:
-#line 97 "compiler.y" /* yacc.c:1646  */
+#line 96 "compiler.y" /* yacc.c:1646  */
     {genCodigo(MOVER,(yyvsp[-1]),(yyvsp[0]),0);}
 #line 1596 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 65:
-#line 100 "compiler.y" /* yacc.c:1646  */
+#line 99 "compiler.y" /* yacc.c:1646  */
     {(yyval)=(yyvsp[-1]);}
 #line 1602 "y.tab.c" /* yacc.c:1646  */
     break;
@@ -1830,7 +1830,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 102 "compiler.y" /* yacc.c:1906  */
+#line 101 "compiler.y" /* yacc.c:1906  */
 
 
 void genCodigo(int op,int a1,int a2,int a3)
@@ -2057,14 +2057,22 @@ void muestraSimbolo()
 	int i;
 	printf("\t\t\tTabla de Simbolos \n");
 	for(i=0,pTS=TS;i<nTS;i++,pTS++) {
-		if (pTS->a1==INT)
-			printf("%20s \t%s \t%s \t%d\n",pTS->nombre,pTS->tipo,pTS->clase,pTS->a3.entero);
-		else if (pTS->a1==FLOAT)
-			printf("%20s \t%s \t%s \t%g\n",pTS->nombre,pTS->tipo,pTS->clase,pTS->a3.real);
-		else if (pTS->a1==BOOL)
-			printf("%20s \t%s \t%s \t%s\n",pTS->nombre,pTS->tipo,pTS->clase,pTS->a3.booleano);		
-		else
-			printf("%20s \t%s \t%s \t%s\n",pTS->nombre,pTS->tipo,pTS->clase,pTS->a3.cadena);	
+		if (pTS->a1==INT) {
+			pTS->espacio = sizeof(pTS->a3.entero);
+			printf("%20s \t%s \t%s \t%d \t%zu\n",pTS->nombre,pTS->tipo,pTS->clase,pTS->a3.entero,pTS->espacio);
+		}
+		else if (pTS->a1==FLOAT) {
+			pTS->espacio = sizeof(pTS->a3.real);
+			printf("%20s \t%s \t%s \t%g \t%zu\n",pTS->nombre,pTS->tipo,pTS->clase,pTS->a3.real,pTS->espacio);
+		}
+		else if (pTS->a1==BOOL) {
+			pTS->espacio = sizeof(pTS->a3.booleano);
+			printf("%20s \t%s \t%s \t%s \t%zu\n",pTS->nombre,pTS->tipo,pTS->clase,pTS->a3.booleano,pTS->espacio);		
+		}
+		else {
+			pTS->espacio = sizeof(pTS->a3.cadena);
+			printf("%20s \t%s \t%s \t%s \t%zu\n",pTS->nombre,pTS->tipo,pTS->clase,pTS->a3.cadena,pTS->espacio);	
+		}
 	}
 } 
 
@@ -2380,7 +2388,7 @@ void yyerror(char *m)  {
 	
 int main()  
 {
-	yyparse(); // llama automáticamente a yylex para obtener cada token
+	yyparse(); // llama automaticamente a yylex para obtener cada token
 	printf("\n");
 	muestraSimbolo();
 	printf("\n");

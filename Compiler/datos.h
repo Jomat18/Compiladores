@@ -37,20 +37,19 @@ typedef union
 typedef struct 
 {
 	char nombre[30];
-	int a1,a2, linea;  	// a1: INT/FLOAT/BOOL/STRING	a2: FUN/VAR/ARREGLO
+	int a1,a2,linea;  	// a1: INT/FLOAT/BOOL/STRING	a2: FUNCION/VAR/ARREGLO
 	char tipo[30];
 	char clase[30];
-	tipovalor a3; 	// guarda valor
-					// Localizacion en memoria
-} tipoTablaSimbolo;
-
-//printf("%d\n", sizeof(a3));
+	tipovalor a3; 	    // Guarda el valor del simbolo
+	size_t	espacio;    // Espacio en memoria
+	int alcance;        // La parte del programa donde es visible
+} tipoTablaSimbolo;  
 
 /* Tabla de código */
 
 typedef struct 
 {
- 	int op,a1,a2,a3, linea;
+ 	int op,a1,a2,a3;
 } tipoCodigo;
 
 tipoCodigo TABCOD[100];

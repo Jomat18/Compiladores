@@ -7,7 +7,7 @@
 #include <math.h>
 #define YYDEBUG 1   /* Depurador */
 
-#include "datos.h"  /* Tabla de simbolos y operaciones */
+#include "datos.h"  /* Tabla de simbolos y codigos */
 
 int yylex(void);
 void yyerror(char *m);
@@ -57,7 +57,6 @@ void yyerror(char *m);
 	prop : ';' ;
 	prop : bloque ;
     prop : IF '(' expr ')' { genCodigo(SALTARF,$3,0,$$); $$ = cx; } prop  { TABCOD[$5].a3 = cx + 1;  } ;
-	/*prop : IF '(' expr ')' prop ELSE prop ;*/
 	prop : WHILE '(' {$$ = cx + 1;}  expr    ')' 	{genCodigo(SALTARF,$4,0,-1); /* Destino no resuelto */
 	   						                         $$ = cx; /* Falta llenar cuarto componente de este salto */} 
 				                                 prop	
@@ -325,14 +324,22 @@ void muestraSimbolo()
 	int i;
 	printf("\t\t\tTabla de Simbolos \n");
 	for(i=0,pTS=TS;i<nTS;i++,pTS++) {
-		if (pTS->a1==INT)
-			printf("%20s \t%s \t%s \t%d\n",pTS->nombre,pTS->tipo,pTS->clase,pTS->a3.entero);
-		else if (pTS->a1==FLOAT)
-			printf("%20s \t%s \t%s \t%g\n",pTS->nombre,pTS->tipo,pTS->clase,pTS->a3.real);
-		else if (pTS->a1==BOOL)
-			printf("%20s \t%s \t%s \t%s\n",pTS->nombre,pTS->tipo,pTS->clase,pTS->a3.booleano);		
-		else
-			printf("%20s \t%s \t%s \t%s\n",pTS->nombre,pTS->tipo,pTS->clase,pTS->a3.cadena);	
+		if (pTS->a1==INT) {
+			pTS->espacio = sizeof(pTS->a3.entero);
+			printf("%20s \t%s \t%s \t%d \t%zu\n",pTS->nombre,pTS->tipo,pTS->clase,pTS->a3.entero,pTS->espacio);
+		}
+		else if (pTS->a1==FLOAT) {
+			pTS->espacio = sizeof(pTS->a3.real);
+			printf("%20s \t%s \t%s \t%g \t%zu\n",pTS->nombre,pTS->tipo,pTS->clase,pTS->a3.real,pTS->espacio);
+		}
+		else if (pTS->a1==BOOL) {
+			pTS->espacio = sizeof(pTS->a3.booleano);
+			printf("%20s \t%s \t%s \t%s \t%zu\n",pTS->nombre,pTS->tipo,pTS->clase,pTS->a3.booleano,pTS->espacio);		
+		}
+		else {
+			pTS->espacio = sizeof(pTS->a3.cadena);
+			printf("%20s \t%s \t%s \t%s \t%zu\n",pTS->nombre,pTS->tipo,pTS->clase,pTS->a3.cadena,pTS->espacio);	
+		}
 	}
 } 
 
@@ -648,7 +655,7 @@ void yyerror(char *m)  {
 	
 int main()  
 {
-	yyparse(); // llama automáticamente a yylex para obtener cada token
+	yyparse(); // llama automaticamente a yylex para obtener cada token
 	printf("\n");
 	muestraSimbolo();
 	printf("\n");
